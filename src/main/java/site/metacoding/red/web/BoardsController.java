@@ -3,11 +3,15 @@ package site.metacoding.red.web;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+//import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class BoardsController {
+//	@PostMapping("/boards{id}/delete")
+//	@PostMapping("/boards{id}/update")		-> 혼자서 delete랑 update 해보고 싶으면 이렇게 연습
+
 	
-	@GetMapping("/boards")
+	@GetMapping({"/", "/boards"})		// { }로 감싸면 두 개 쓸 수 있다
 	public String getBoardList() {
 		return "boards/main";
 	}
