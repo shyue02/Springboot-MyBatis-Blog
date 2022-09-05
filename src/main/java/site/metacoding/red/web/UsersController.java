@@ -30,7 +30,7 @@ public class UsersController {
 	public String login(LoginDto loginDto) {
 		Users usersPS = usersDao.login(loginDto);  // DB로 부터 select해서 들고 온 것 뒤에는 이름 적을 때 PS를 붙여주자 -> PS가 없으면 db에서 들고온 것인지, 사용자가 받은 것인지, 내가 new해서 받은건지 구별이 안 됨 
 		if(usersPS != null) { //null이 아니면 로그인 인증
-			session.setAttribute("principal", usersPS);		// principal : 인증된 유저 / 리캐스트에 principal 적지마!
+			session.setAttribute("principal", usersPS);		// principal : 인증된 유저, -> 키값 / 리캐스트에 principal 적지마! // http session은 object 타입이다(모든 클래스는 오브젝트를 상속)
 			return "redirect:/";
 		} else {	// 인증 안 됨
 			return "redirect:/loginForm";
