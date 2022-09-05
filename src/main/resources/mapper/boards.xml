@@ -5,18 +5,22 @@
 <mapper namespace="site.metacoding.red.domain.boards.BoardsDao">
 	
 	<insert id="insert">
-		INSERT INTO boards(id, title, content, usersId, createdAt)
+		INSERT INTO boards(id, title, content, usersId, createdAt) 
 		VALUES(boards_seq.nextval, #{title}, #{content}, #{usersId}, sysdate)
 	</insert>
-
+	
 	<select id="findById" resultType="site.metacoding.red.domain.boards.Boards">
-	
+
 	</select>
 	
-	<select id="findAll" resultType="site.metacoding.red.domain.boards.Boards">
-		
+	<select id="findAll" resultType="site.metacoding.red.domain.boards.mapper.MainView">
+		SELECT b.id, b.title, u.username <!--원래는 개발시에는 다 적어두고 최종시에는 필요한 것만 적어두는 것이 좋다 --> 
+	FROM boards b 
+		INNER JOIN users u 
+		ON b.usersId = u.id
+		ORDER BY b.id DESC<!-- usersId와 id를 조인 -->
 	</select>
-	
+
 	<update id="update">
 	
 	</update>
@@ -24,5 +28,4 @@
 	<delete id="delete">
 	
 	</delete>
-
 </mapper>
