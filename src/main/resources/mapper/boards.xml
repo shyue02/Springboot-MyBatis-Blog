@@ -10,10 +10,10 @@
 	</insert>
 	
 	<select id="findById" resultType="site.metacoding.red.domain.boards.Boards">
-
+		SELECT id, title, content FROM boards WHERE id=#{id}
 	</select>
 	
-	<select id="findAll" resultType="site.metacoding.red.domain.boards.mapper.MainView">
+	<select id="findAll" resultType="site.metacoding.red.web.dto.response.boards.MainDto">
 		SELECT b.id, b.title, u.username <!--원래는 개발시에는 다 적어두고 최종시에는 필요한 것만 적어두는 것이 좋다 --> 
 	FROM boards b 
 		INNER JOIN users u 
