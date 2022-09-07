@@ -15,6 +15,7 @@ import site.metacoding.red.domain.boards.BoardsDao;
 import site.metacoding.red.domain.users.Users;
 import site.metacoding.red.web.dto.request.boards.WriteDto;
 import site.metacoding.red.web.dto.response.boards.MainDto;
+import site.metacoding.red.web.dto.response.boards.PagingDto;
 
 @RequiredArgsConstructor
 @Controller
@@ -50,7 +51,9 @@ public class BoardsController {
 		if(page == null) page = 0;	
 		int startNum = page * 10;	
 		List<MainDto> boardsList = boardsDao.findAll(startNum);
+		PagingDto paging = boardsDao.paging(page);
 		model.addAttribute("boardsList", boardsList);
+		model.addAttribute("paging", paging);
 		return "boards/main";
 	}
 

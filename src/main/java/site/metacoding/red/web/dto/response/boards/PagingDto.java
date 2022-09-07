@@ -1,10 +1,14 @@
 package site.metacoding.red.web.dto.response.boards;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class PagingDto {
-	private Integer startNum;
 	private Integer totalCount;
-	private Integer totalPage;	 	// = (totalCount / 한 페이지당 갯수) + 나머지가 있으면 +1
+	private Integer totalPage;
 	private Integer currentPage;
-	private boolean isLast;
-	private boolean isFirst;
+	private boolean isLast; // getter가 만들어지면 isLast() 이름으로 만들어짐.
+	private boolean isFirst; // getter가 만들어지면 isFirst() 이름으로 만들어짐.
 }
