@@ -56,18 +56,14 @@ public class BoardsController {
 		PagingDto paging = boardsDao.paging(page);
 
 		// 2. 수정함
-		int blockCount = 5;
-		int currentBlock = page / 5;
-		int startPageNum = 1;
-		if (page != 0)
-			startPageNum = 1 + blockCount * currentBlock;
-		int lastPageNum = 5;
-		if (page != 0) {
-			lastPageNum = 5 + blockCount * currentBlock;
+		final int blockCount = 5;
 
-			if (paging.getTotalPage() < lastPageNum) {
-				lastPageNum = paging.getTotalPage();
-			}
+		int currentBlock = page / blockCount;
+		int startPageNum = 1 + blockCount * currentBlock;
+		int lastPageNum = 5 + blockCount * currentBlock;
+
+		if (paging.getTotalPage() < lastPageNum) {
+			lastPageNum = paging.getTotalPage();
 		}
 
 		paging.setBlockCount(blockCount);
