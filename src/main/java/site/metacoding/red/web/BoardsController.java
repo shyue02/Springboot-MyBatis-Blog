@@ -10,10 +10,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import lombok.RequiredArgsConstructor;
 import site.metacoding.red.domain.boards.Boards;
 import site.metacoding.red.domain.boards.BoardsDao;
 import site.metacoding.red.domain.users.Users;
+import site.metacoding.red.web.dto.request.boards.UpdateDto;
 import site.metacoding.red.web.dto.request.boards.WriteDto;
 import site.metacoding.red.web.dto.response.boards.MainDto;
 import site.metacoding.red.web.dto.response.boards.PagingDto;
@@ -27,27 +29,78 @@ public class BoardsController {
 //	@PostMapping("/boards{id}/delete")
 //	@PostMapping("/boards{id}/update")		-> 혼자서 delete랑 update 해보고 싶으면 이렇게 연습
 
-	@PostMapping("/boards/{id}/delete") // 원래 딜리트 쓰면 안됨. 동사이기때문.
-	public String deleteBoards(@PathVariable Integer id) {		// @ResponseBody - 파일을 안 찾고 데이터로 응답 리턴
-		Users principal = (Users) session.getAttribute("principal");
+	@PostMapping("/boards/{id}/update")
+	public String update(@PathVariable Integer id, UpdateDto updateDto) {
+		// 1. 영속화
 		Boards boardsPS = boardsDao.findById(id);
-		
+		Users principal = (Users) session.getAttribute("principal"); // 권한 인증 체크 필요!
 		// 비정상 요청 체크
-		if(boardsPS == null) { // if는 비정상 로직을 타게 해서 걸러내는 필터 역할을 하는 게좋다.
-			return "redirect:/boards/"+id;
+		if (boardsPS == null) { // if는 비정상 로직을 타게 해서 걸러내는 필터 역할을 하는 게좋다.
+			return "errors/badPage";
 		}
-		
 		// 인증 체크
 		if (principal == null) {
 			return "redirect:/loginForm";
 		}
-		
+		// 권한 체크 ( 세션 principal.getId() 와 boardsPS의 userId를 비교)
+		if (principal.getId() != boardsPS.getUsersId()) { // if는 비정상 로직을 타게 해서 걸러내는 필터 역할을 하는게 좋다.
+			return "errors/badPage";
+		}
+
+		// 2. 변경
+		boardsPS.글수정(updateDto);
+
+		// 3. 수행
+		boardsDao.update(boardsPS);
+
+		return "redirect:/boards/" + id; // 업데이트완료후 돌아갈 주소
+	}
+
+	@GetMapping("/boards/{id}/updateForm") // =boards 테이블에 있는 특정 게시글{id}을 업데이트 할 수 있는 폼(updateForm)을 주세요
+	public String updateForm(@PathVariable Integer id, Model model) {
+		Boards boardsPS = boardsDao.findById(id);
+		Users principal = (Users) session.getAttribute("principal");// 권한 인증 체크 필요!
+
+		// 비정상 요청 체크
+		if (boardsPS == null) {// if는 비정상 로직을 타게 해서 걸러내는 필터 역할을 하는 게좋다.
+			return "errors/badPage";
+		}
+		// 인증 체크
+		if (principal == null) {
+			return "redirect:/loginForm";
+		}
+
+		// 권한 체크 ( 세션 principal.getId() 와 boardsPS의 userId를 비교)
+		if (principal.getId() != boardsPS.getUsersId()) {// if는 비정상 로직을 타게 해서 걸러내는 필터 역할을 하는게 좋다.
+			return "errors/badPage";
+		}
+
+		model.addAttribute("boards", boardsPS);
+		// 그냥 가면 안되고 모델에 담아야 한다
+		return "boards/updateForm";
+	}
+
+	@PostMapping("/boards/{id}/delete") // 원래 딜리트 쓰면 안됨. 동사이기때문.
+	public String deleteBoards(@PathVariable Integer id) { // @ResponseBody - 파일을 안 찾고 데이터로 응답 리턴
+		Users principal = (Users) session.getAttribute("principal");
+		Boards boardsPS = boardsDao.findById(id);
+
+		// 비정상 요청 체크
+		if (boardsPS == null) { // if는 비정상 로직을 타게 해서 걸러내는 필터 역할을 하는 게좋다.
+			return "redirect:/boards/" + id;
+		}
+
+		// 인증 체크
+		if (principal == null) {
+			return "redirect:/loginForm";
+		}
+
 		// 권한 체크 (세션 prinicipal.getId() 와 boardsPS의 userId를 비교
 		if (principal.getId() != boardsPS.getUsersId()) { // if는 비정상 로직을 타게 해서 걸러내는 필터 역할을 하는게 좋다.
 			return "redirect:/boards/" + id;
 		}
 
-		boardsDao.delete(id);
+		boardsDao.delete(id); // 핵심 로직
 		return "redirect:/";
 	}
 
@@ -69,7 +122,8 @@ public class BoardsController {
 		return "redirect:/";
 	}
 
-	// http://localhost:8000/ -> 이렇게 요청하면 쿼리스트링 없으니까 페이지 값 null -> 페이지 디폴트값을 0으로 만들어줌
+	// http://localhost:8000/ -> 이렇게 요청하면 쿼리스트링 없으니까 페이지 값 null -> 페이지 디폴트값을 0으로
+	// 만들어줌
 	// http://localhost:8000/?page=0
 	@GetMapping({ "/", "/boards" }) // { }로 감싸면 두 개 쓸 수 있다
 	public String getBoardList(Model model, Integer page) { // 0 -> 0, 1->10, 2->20
@@ -79,7 +133,6 @@ public class BoardsController {
 		List<MainDto> boardsList = boardsDao.findAll(startNum);
 		PagingDto paging = boardsDao.paging(page);
 		paging.makeBlockInfo();
-		
 
 		model.addAttribute("boardsList", boardsList);
 		model.addAttribute("paging", paging);

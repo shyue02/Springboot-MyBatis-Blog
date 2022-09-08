@@ -7,9 +7,9 @@
 
 	<c:if test="${principal.id == boards.usersId}">
 		<div class="d-flex">
-			<form>
-				<button class="btn btn-warning">수정</button>
-			</form>
+			
+				<a href ="/boards/${boards.id}/updateForm" class="btn btn-warning">수정</a>
+	
 
 			<form action="/boards/${boards.id}/delete" method="post">
 				<button class="btn btn-danger">삭제</button>
